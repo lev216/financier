@@ -7,4 +7,6 @@ pluginManagement {
     }
 }
 
-include("homework1")
+include("asset-service")
+include("currency-service")
+include("cb-rf-integration-service")

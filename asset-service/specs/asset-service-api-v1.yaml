@@ -1,0 +1,177 @@
+openapi: 3.0.3
+info:
+  title: "asset-service ${VERSION_APP}"
+  description: The app stores and provides info about assets
+  version: 1.0.0
+servers:
+  - url: http://localhost:8080/v1
+paths:
+  /create:
+    post:
+      summary: Create asset
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateUpdateAssetRequest'
+        required: true
+      responses:
+        200:
+          description: Asset is created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateAssetResponse'
+  /update:
+    post:
+      summary: Update asset's data
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateUpdateAssetRequest'
+        required: true
+      responses:
+        204:
+          description: Asset is updated
+  /search:
+    post:
+      summary: Search asset by different parameters
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SearchAssetRequest'
+        required: true
+      parameters:
+        - in: path
+          name: type
+          schema:
+            type: string
+            enum:
+              - DEPOSIT
+              - CASH
+          required: false
+      responses:
+        200:
+          description: Some assets are found according to given parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchAssetResponse'
+  /delete:
+    post:
+      summary: Remove assets
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeleteAssetRequest'
+        required: true
+      responses:
+        204:
+          description: Assets are removed
+components:
+  schemas:
+    CreateUpdateAssetRequest:
+      type: object
+      description: request to create an asset
+      properties:
+        sum:
+          type: number
+        currency:
+          type: string
+        userId:
+          type: string
+        type:
+          type: string
+          enum:
+            - DEPOSIT
+            - CASH
+        depositFields:
+          allOf:
+            - $ref: '#/components/schemas/DepositFields'
+      required:
+        - sum
+        - currency
+        - userId
+        - type
+    DepositFields:
+      type: object
+      properties:
+        startDate:
+          type: string
+        endDate:
+          type: string
+        interestRate:
+          type: number
+      required:
+        - startDate
+        - endDate
+        - interestRate
+    CreateAssetResponse:
+      type: object
+      description: result of creation the asset
+      properties:
+        id:
+          type: string
+      required:
+        - id
+    SearchAssetRequest:
+      type: object
+      properties:
+        id:
+          type: string
+        startDate:
+          type: string
+        endDate:
+          type: string
+        userId:
+          type: string
+    SearchAssetResponse:
+      type: object
+      properties:
+        assets:
+          type: array
+          default: []
+          items:
+            $ref: '#/components/schemas/FoundAsset'
+    FoundAsset:
+      type: object
+      properties:
+        id:
+          type: string
+        sum:
+          type: number
+        currency:
+          type: string
+        userId:
+          type: string
+        type:
+          type: string
+          enum:
+            - DEPOSIT
+            - CASH
+        depositFields:
+          allOf:
+            - $ref: '#/components/schemas/DepositFields'
+      required:
+        - id
+        - sum
+        - currency
+        - userId
+        - type
+    DeleteAssetRequest:
+      type: object
+      properties:
+        id:
+          type: array
+          items:
+            type: string
+      required:
+        - id

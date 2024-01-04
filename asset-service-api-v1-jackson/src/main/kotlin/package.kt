@@ -1,0 +1,1 @@
+package ru.otus.otuskotlin.financier.asset.api.v1.jackson

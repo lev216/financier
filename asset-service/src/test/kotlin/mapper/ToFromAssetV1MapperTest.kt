@@ -8,11 +8,7 @@ import io.mockk.unmockkStatic
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatCode
 import org.junit.Test
-import ru.otus.otuskotlin.financier.asset.api.v1.models.CreateUpdateAssetRequest
-import ru.otus.otuskotlin.financier.asset.api.v1.models.CreateUpdateAssetRequest.Type.CASH
-import ru.otus.otuskotlin.financier.asset.api.v1.models.CreateUpdateAssetRequest.Type.DEPOSIT
-import ru.otus.otuskotlin.financier.asset.api.v1.models.DepositFields
-import ru.otus.otuskotlin.financier.asset.api.v1.models.FoundAsset
+import ru.otus.otuskotlin.financier.asset.api.v1.models.*
 import ru.otus.otuskotlin.financier.asset.mapper.mapFromAsset
 import ru.otus.otuskotlin.financier.asset.mapper.mapToAsset
 import ru.otus.otuskotlin.financier.asset.model.Asset
@@ -26,41 +22,76 @@ class ToFromAssetV1MapperTest {
     private val uuid = UUID.fromString("da5db9d8-b13d-4094-959e-2fc57482ae70")
     private val startDate = LocalDateTime.of(2024, 1, 4, 19, 27)
     private val endDate = LocalDateTime.of(2034, 10, 24, 9, 7)
-    private val requestForCash = CreateUpdateAssetRequest(
-        ONE,
-        "USD",
-        "userId",
-        CASH,
+    private val createRequestForCash = AssetCreateRequest(
+        "create",
+        "requestId",
+        AssetCreateObject(
+            ONE,
+            "USD",
+            "userId",
+            AssetCreateObject.Type.CASH,
+        )
     )
-    private val requestForDeposit = CreateUpdateAssetRequest(
-        ONE,
-        "USD",
-        "userId",
-        DEPOSIT,
-        DepositFields(
+    private val createRequestForDeposit = AssetCreateRequest(
+        "create",
+        "requestId",
+        AssetCreateObject(
+            ONE,
+            "USD",
+            "userId",
+            AssetCreateObject.Type.DEPOSIT,
+            DepositFields(
+                startDate.toString(),
+                endDate.toString(),
+                TEN,
+            ),
+        )
+    )
+    private val updateRequestForCash = AssetUpdateRequest(
+        "create",
+        "requestId",
+        AssetUpdateObject(
+            ONE,
+            "USD",
+            "userId",
+            AssetUpdateObject.Type.CASH,
+            uuid.toString(),
+        )
+    )
+    private val updateRequestForDeposit = AssetUpdateRequest(
+        "create",
+        "requestId",
+        AssetUpdateObject(
+            ONE,
+            "USD",
+            "userId",
+            AssetUpdateObject.Type.DEPOSIT,
+            uuid.toString(),
+            DepositFields(
+                startDate.toString(),
+                endDate.toString(),
+                TEN,
+            ),
+        )
+    )
+    private val assetResponseCash = AssetResponseObject(
+        sum = ONE,
+        currency = "USD",
+        userId = "userId",
+        type = AssetResponseObject.Type.CASH,
+        id = uuid.toString(),
+    )
+    private val assetResponseDeposit = AssetResponseObject(
+        sum = ONE,
+        currency = "USD",
+        userId = "userId",
+        type = AssetResponseObject.Type.DEPOSIT,
+        depositFields = DepositFields(
             startDate.toString(),
             endDate.toString(),
             TEN,
         ),
-    )
-    private val foundAssetCash = FoundAsset(
-        uuid.toString(),
-        ONE,
-        "USD",
-        "userId",
-        FoundAsset.Type.CASH,
-    )
-    private val foundAssetDeposit = FoundAsset(
-        uuid.toString(),
-        ONE,
-        "USD",
-        "userId",
-        FoundAsset.Type.DEPOSIT,
-        DepositFields(
-            startDate.toString(),
-            endDate.toString(),
-            TEN,
-        ),
+        id = uuid.toString(),
     )
 
     @Test
@@ -69,7 +100,7 @@ class ToFromAssetV1MapperTest {
         mockkStatic(UUID::class)
         every { UUID.randomUUID() } returns uuid
 
-        val actual = mapToAsset(requestForCash, null)
+        val actual = mapToAsset(createRequestForCash)
         assertThat(actual).isEqualTo(expected)
 
         unmockkStatic(UUID::class)
@@ -85,7 +116,7 @@ class ToFromAssetV1MapperTest {
         mockkStatic(UUID::class)
         every { UUID.randomUUID() } returns uuid
 
-        val actual = mapToAsset(requestForDeposit, null)
+        val actual = mapToAsset(createRequestForDeposit)
         assertThat(actual).isEqualTo(expected)
 
         unmockkStatic(UUID::class)
@@ -95,7 +126,7 @@ class ToFromAssetV1MapperTest {
     fun `mapToAsset with request to update asset with type CASH`() {
         val expected = fakeCash(id = "da5db9d8-b13d-4094-959e-2fc57482ae70")
 
-        val actual = mapToAsset(requestForCash, uuid.toString())
+        val actual = mapToAsset(updateRequestForCash)
         assertThat(actual).isEqualTo(expected)
     }
 
@@ -107,23 +138,42 @@ class ToFromAssetV1MapperTest {
             endDate = endDate,
         )
 
-        val actual = mapToAsset(requestForDeposit, uuid.toString())
+        val actual = mapToAsset(updateRequestForDeposit)
         assertThat(actual).isEqualTo(expected)
     }
 
     @Test
     fun `mapToAsset without deposit data`() {
-        val requestWithoutDepositData = CreateUpdateAssetRequest(
-            ONE,
-            "USD",
-            "userId",
-            DEPOSIT,
-            null,
+        val requestWithoutDepositData = AssetCreateRequest(
+            "create",
+            "requestId",
+            AssetCreateObject(
+                ONE,
+                "USD",
+                "userId",
+                AssetCreateObject.Type.DEPOSIT,
+                null,
+            )
         )
 
-        assertThatCode { mapToAsset(requestWithoutDepositData, null) }
+        assertThatCode { mapToAsset(requestWithoutDepositData) }
             .isInstanceOf(NullPointerException::class.java)
             .hasMessage("text")
+    }
+
+    @Test
+    fun `mapToAsset when asset can't be mapped`() {
+        val assetDeleteRequest = AssetDeleteRequest(
+            "delete",
+            "requestId",
+            AssetDeleteObject(
+                "id"
+            )
+        )
+
+        assertThatCode { mapToAsset(assetDeleteRequest) }
+            .isInstanceOf(IllegalArgumentException::class.java)
+            .hasMessage("Asset can't be mapped from request: AssetDeleteRequest(requestType=delete, requestId=requestId, asset=AssetDeleteObject(id=id, lock=null), debug=null)")
     }
 
     @Test
@@ -131,7 +181,7 @@ class ToFromAssetV1MapperTest {
         val cash = fakeCash(id = "da5db9d8-b13d-4094-959e-2fc57482ae70")
 
         val actual = mapFromAsset(cash)
-        assertThat(actual).isEqualTo(foundAssetCash)
+        assertThat(actual).isEqualTo(assetResponseCash)
     }
 
     @Test
@@ -143,7 +193,7 @@ class ToFromAssetV1MapperTest {
         )
 
         val actual = mapFromAsset(cash)
-        assertThat(actual).isEqualTo(foundAssetDeposit)
+        assertThat(actual).isEqualTo(assetResponseDeposit)
     }
 
     @Test
@@ -153,10 +203,11 @@ class ToFromAssetV1MapperTest {
             override val sum: BigDecimal = ZERO
             override val currency: String = "currency"
             override val userId: String = "userId"
+            override fun toString() = "Strange asset"
         }
 
         assertThatCode { mapFromAsset(asset) }
             .isInstanceOf(IllegalArgumentException::class.java)
-            .hasMessage("Asset is unknown")
+            .hasMessage("Asset is unknown: Strange asset")
     }
 }

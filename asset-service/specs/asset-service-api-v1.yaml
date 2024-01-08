@@ -5,15 +5,20 @@ info:
   version: 1.0.0
 servers:
   - url: http://localhost:8080/v1
+tags:
+  - name: asset
+    description: Operation with an asset
 paths:
-  /create:
+  /asset/create:
     post:
       summary: Create asset
+      tags:
+        - asset
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreateUpdateAssetRequest'
+              $ref: '#/components/schemas/AssetCreateRequest'
         required: true
       responses:
         200:
@@ -21,32 +26,53 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CreateAssetResponse'
-  /update:
+                $ref: '#/components/schemas/AssetCreateResponse'
+  /asset/update:
     post:
       summary: Update asset's data
-      parameters:
-        - in: path
-          name: id
-          schema:
-            type: string
+      tags:
+        - asset
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreateUpdateAssetRequest'
+              $ref: '#/components/schemas/AssetUpdateRequest'
         required: true
       responses:
-        204:
+        200:
           description: Asset is updated
-  /search:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssetUpdateResponse'
+  /asset/read:
     post:
-      summary: Search asset by different parameters
+      summary: Read asset
+      tags:
+        - asset
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/SearchAssetRequest'
+              $ref: '#/components/schemas/AssetReadRequest'
+        required: true
+      responses:
+        200:
+          description: Asset is provided
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssetReadResponse'
+  /asset/search:
+    post:
+      summary: Search asset by different parameters
+      tags:
+        - asset
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AssetSearchRequest'
         required: true
       parameters:
         - in: path
@@ -63,33 +89,128 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SearchAssetResponse'
-  /delete:
+                $ref: '#/components/schemas/AssetSearchResponse'
+  /asset/delete:
     post:
       summary: Remove assets
+      tags:
+        - asset
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/DeleteAssetRequest'
+              $ref: '#/components/schemas/AssetDeleteRequest'
         required: true
       responses:
-        204:
-          description: Assets are removed
+        200:
+          description: Asset is removed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssetDeleteResponse'
 components:
   schemas:
-    CreateUpdateAssetRequest:
+
+    IRequest:
       type: object
-      description: request to create an asset
+      description: base object for all requests
+      properties:
+        requestType:
+          type: string
+          description: discriminator to clarify request type
+          example: create
+        requestId:
+          type: string
+          description: id of request to debug
+      required:
+        - requestType
+        - requestId
+      discriminator:
+        propertyName: requestType
+        mapping:
+          create: '#/components/schemas/AssetCreateRequest'
+          read: '#/components/schemas/AssetReadRequest'
+          update: '#/components/schemas/AssetUpdateRequest'
+          delete: '#/components/schemas/AssetDeleteRequest'
+          search: '#/components/schemas/AssetSearchRequest'
+
+    Error:
+      type: object
+      properties:
+        code:
+          type: string
+        group:
+          type: string
+        field:
+          type: string
+        message:
+          type: string
+
+    ResponseResult:
+      type: string
+      enum:
+        - success
+        - error
+
+    IResponse:
+      type: object
+      description: base object for all responses
+      properties:
+        responseType:
+          type: string
+          description: discriminator to clarify response type
+          example: create
+        requestId:
+          type: string
+          description: id of request to debug
+        result:
+          $ref: '#/components/schemas/ResponseResult'
+        errors:
+          type: array
+          default: []
+          items:
+            $ref: '#/components/schemas/Error'
+      required:
+        - responseType
+        - requestId
+        - result
+      discriminator:
+        propertyName: responseType
+        mapping:
+          create: '#/components/schemas/AssetCreateResponse'
+          read: '#/components/schemas/AssetReadResponse'
+          update: '#/components/schemas/AssetUpdateResponse'
+          delete: '#/components/schemas/AssetDeleteResponse'
+          search: '#/components/schemas/AssetSearchResponse'
+          init: '#/components/schemas/AssetInitResponse'
+
+    AssetId:
+      type: string
+      description: id of an asset
+
+    UserId:
+      type: string
+      description: id of an user
+
+    AssetLock:
+      type: string
+      description: optimistic lock version
+
+    BaseAsset:
+      type: object
+      description: the object has common properties for create and update operations
       properties:
         sum:
           type: number
+          description: asset value
         currency:
           type: string
+          description: currency of asset value
         userId:
-          type: string
+          $ref: '#/components/schemas/UserId'
         type:
           type: string
+          description: type of asset
           enum:
             - DEPOSIT
             - CASH
@@ -101,77 +222,220 @@ components:
         - currency
         - userId
         - type
+
     DepositFields:
       type: object
       properties:
         startDate:
           type: string
+          description: date when deposit started
         endDate:
           type: string
+          description: date when deposit ended
         interestRate:
           type: number
+          description: deposit's interest rate
       required:
         - startDate
         - endDate
         - interestRate
-    CreateAssetResponse:
+
+    AssetCreateObject:
+      allOf:
+        - $ref: '#/components/schemas/BaseAsset'
+
+    AssetCreateRequest:
+      allOf:
+        - $ref: '#/components/schemas/IRequest'
+        - $ref: '#/components/schemas/AssetRequestDebug'
+        - type: object
+          properties:
+            asset:
+              $ref: '#/components/schemas/AssetCreateObject'
+          required:
+            - asset
+
+    AssetReadObject:
+      allOf:
+        - type: object
+          properties:
+            id:
+              $ref: '#/components/schemas/AssetId'
+          required:
+            - id
+
+    AssetReadRequest:
+      allOf:
+        - $ref: '#/components/schemas/IRequest'
+        - $ref: '#/components/schemas/AssetRequestDebug'
+        - type: object
+          properties:
+            asset:
+              $ref: '#/components/schemas/AssetReadObject'
+          required:
+            - asset
+
+    AssetUpdateObject:
+      allOf:
+        - $ref: '#/components/schemas/BaseAsset'
+        - type: object
+          properties:
+            id:
+              $ref: '#/components/schemas/AssetId'
+            lock:
+              $ref: '#/components/schemas/AssetLock'
+          required:
+            - id
+
+    AssetUpdateRequest:
+      allOf:
+        - $ref: '#/components/schemas/IRequest'
+        - $ref: '#/components/schemas/AssetRequestDebug'
+        - type: object
+          properties:
+            asset:
+              $ref: '#/components/schemas/AssetUpdateObject'
+          required:
+            - asset
+
+    AssetSearchFilter:
       type: object
-      description: result of creation the asset
+      description: collection of filters to search assets
       properties:
         id:
           type: string
-      required:
-        - id
-    SearchAssetRequest:
-      type: object
-      properties:
-        id:
-          type: string
+          description: asset's id
         startDate:
           type: string
+          description: start date of deposit
         endDate:
           type: string
+          description: end date of deposit
         userId:
           type: string
-    SearchAssetResponse:
+          description: user's id
+
+    AssetSearchRequest:
+      allOf:
+        - $ref: '#/components/schemas/IRequest'
+        - $ref: '#/components/schemas/AssetRequestDebug'
+        - type: object
+          properties:
+            assetFilter:
+              $ref: '#/components/schemas/AssetSearchFilter'
+          required:
+            - assetFilter
+
+    AssetDeleteObject:
+      allOf:
+        - type: object
+          properties:
+            id:
+              $ref: '#/components/schemas/AssetId'
+            lock:
+              $ref: '#/components/schemas/AssetLock'
+          required:
+            - id
+
+    AssetDeleteRequest:
+      allOf:
+        - $ref: '#/components/schemas/IRequest'
+        - $ref: '#/components/schemas/AssetRequestDebug'
+        - type: object
+          properties:
+            asset:
+              $ref: '#/components/schemas/AssetDeleteObject'
+          required:
+            - asset
+
+    AssetResponseObject:
+      allOf:
+        - $ref: '#/components/schemas/BaseAsset'
+        - type: object
+          description: asset which returns in response
+          properties:
+            id:
+              $ref: '#/components/schemas/AssetId'
+            lock:
+              $ref: '#/components/schemas/AssetLock'
+
+    AssetResponseSingle:
+      allOf:
+        - type: object
+          description: response with one asset
+          properties:
+            asset:
+              $ref: '#/components/schemas/AssetResponseObject'
+
+    AssetResponseMulti:
+      allOf:
+        - type: object
+          description: a collection of found assets
+          properties:
+            assets:
+              type: array
+              default: []
+              items:
+                $ref: '#/components/schemas/AssetResponseObject'
+
+    AssetCreateResponse:
+      allOf:
+        - $ref: '#/components/schemas/IResponse'
+        - $ref: '#/components/schemas/AssetResponseSingle'
+
+    AssetReadResponse:
+      allOf:
+        - $ref: '#/components/schemas/IResponse'
+        - $ref: '#/components/schemas/AssetResponseSingle'
+
+    AssetUpdateResponse:
+      allOf:
+        - $ref: '#/components/schemas/IResponse'
+        - $ref: '#/components/schemas/AssetResponseSingle'
+
+    AssetSearchResponse:
+      allOf:
+        - $ref: '#/components/schemas/IResponse'
+        - $ref: '#/components/schemas/AssetResponseMulti'
+
+    AssetDeleteResponse:
+      allOf:
+        - $ref: '#/components/schemas/IResponse'
+        - $ref: '#/components/schemas/AssetResponseSingle'
+
+    AssetInitResponse:
+      allOf:
+        - $ref: '#/components/schemas/IResponse'
+
+    # STUBS ======================
+    AssetRequestDebugMode:
+      type: string
+      enum:
+        - prod
+        - test
+        - stub
+
+    AssetRequestDebug:
       type: object
       properties:
-        assets:
-          type: array
-          default: []
-          items:
-            $ref: '#/components/schemas/FoundAsset'
-    FoundAsset:
+        debug:
+          $ref: '#/components/schemas/AssetDebug'
+
+    AssetDebug:
       type: object
       properties:
-        id:
-          type: string
-        sum:
-          type: number
-        currency:
-          type: string
-        userId:
-          type: string
-        type:
-          type: string
-          enum:
-            - DEPOSIT
-            - CASH
-        depositFields:
-          allOf:
-            - $ref: '#/components/schemas/DepositFields'
-      required:
-        - id
-        - sum
-        - currency
-        - userId
-        - type
-    DeleteAssetRequest:
-      type: object
-      properties:
-        id:
-          type: array
-          items:
-            type: string
-      required:
-        - id
+        mode:
+          $ref: '#/components/schemas/AssetRequestDebugMode'
+        stub:
+          $ref: '#/components/schemas/AssetRequestDebugStubs'
+
+    AssetRequestDebugStubs:
+      type: string
+      description: stubs enumeration
+      enum:
+        - success
+        - notFound
+        - badId
+        - negativeSum
+        - cannotDelete
+        - badType

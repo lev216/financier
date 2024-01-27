@@ -1,28 +1,31 @@
 package ru.otus.otuskotlin.financier.asset.common.model
 
 import java.math.BigDecimal
-import java.time.LocalDateTime
+import java.math.BigDecimal.ZERO
+import java.time.LocalDate
 
 interface Asset {
-    val id: String
+    val id: AssetId
     val sum: BigDecimal
     val currency: String
-    val userId: String
+    val userId: UserId
 }
 
 data class Cash(
-    override val id: String,
-    override val sum: BigDecimal,
-    override val currency: String,
-    override val userId: String,
+    override val id: AssetId = AssetId.NONE,
+    override val sum: BigDecimal = ZERO,
+    override val currency: String = "RUB",
+    override val userId: UserId = UserId.NONE,
 ) : Asset
 
 data class Deposit(
-    override val id: String,
-    override val sum: BigDecimal,
-    override val currency: String,
-    override val userId: String,
-    val startDate: LocalDateTime,
-    val endDate: LocalDateTime,
+    override val id: AssetId = AssetId.NONE,
+    override val sum: BigDecimal = ZERO,
+    override val currency: String = "RUB",
+    override val userId: UserId = UserId.NONE,
+    val startDate: LocalDate,
+    val endDate: LocalDate,
     val interestRate: BigDecimal,
 ) : Asset
+
+val ASSET_NONE: Asset = Cash()

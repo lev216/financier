@@ -2,7 +2,7 @@ version: '3.7'
 services:
 
   asset-service:
-    build: asset-service
+    image: asset-service-app-ktor:0.0.1
     ports:
       - "8080:8080"
     logging:

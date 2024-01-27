@@ -8,7 +8,17 @@ servers:
 tags:
   - name: asset
     description: Operation with an asset
+  - name: health
+    description: Operation to check service health
 paths:
+  /health:
+    get:
+      summary: Check health
+      tags:
+        - health
+      responses:
+        200:
+          description: Service is alive
   /asset/create:
     post:
       summary: Create asset
@@ -113,6 +123,8 @@ components:
         requestId:
           type: string
           description: id of request to debug
+        requestDebug:
+          $ref: '#/components/schemas/AssetRequestDebug'
       required:
         - requestType
         - requestId
@@ -147,10 +159,6 @@ components:
       type: object
       description: base object for all responses
       properties:
-        responseType:
-          type: string
-          description: discriminator to clarify response type
-          example: create
         requestId:
           type: string
           description: id of request to debug
@@ -162,7 +170,6 @@ components:
           items:
             $ref: '#/components/schemas/Error'
       required:
-        - responseType
         - requestId
         - result
       discriminator:
@@ -241,7 +248,6 @@ components:
     AssetCreateRequest:
       allOf:
         - $ref: '#/components/schemas/IRequest'
-        - $ref: '#/components/schemas/AssetRequestDebug'
         - type: object
           properties:
             asset:
@@ -261,7 +267,6 @@ components:
     AssetReadRequest:
       allOf:
         - $ref: '#/components/schemas/IRequest'
-        - $ref: '#/components/schemas/AssetRequestDebug'
         - type: object
           properties:
             asset:
@@ -284,7 +289,6 @@ components:
     AssetUpdateRequest:
       allOf:
         - $ref: '#/components/schemas/IRequest'
-        - $ref: '#/components/schemas/AssetRequestDebug'
         - type: object
           properties:
             asset:
@@ -314,7 +318,6 @@ components:
     AssetSearchRequest:
       allOf:
         - $ref: '#/components/schemas/IRequest'
-        - $ref: '#/components/schemas/AssetRequestDebug'
         - type: object
           properties:
             assetFilter:
@@ -336,7 +339,6 @@ components:
     AssetDeleteRequest:
       allOf:
         - $ref: '#/components/schemas/IRequest'
-        - $ref: '#/components/schemas/AssetRequestDebug'
         - type: object
           properties:
             asset:

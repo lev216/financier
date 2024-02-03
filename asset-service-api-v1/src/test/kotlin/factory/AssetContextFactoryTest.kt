@@ -1,7 +1,8 @@
-package ru.otus.otuskotlin.financier.asset.factory
+package ru.otus.otuskotlin.financier.asset.api.v1.factory
 
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
+import ru.otus.otuskotlin.financier.asset.api.v1.factory.AssetContextFactory
 import ru.otus.otuskotlin.financier.asset.api.v1.models.*
 import ru.otus.otuskotlin.financier.asset.common.model.*
 import java.math.BigDecimal

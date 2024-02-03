@@ -1,4 +1,4 @@
-package ru.otus.otuskotlin.financier.asset.factory
+package ru.otus.otuskotlin.financier.asset.api.v1.factory
 
 import kotlinx.datetime.Clock
 import org.slf4j.Logger

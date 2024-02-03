@@ -1,12 +1,11 @@
-package ru.otus.otuskotlin.financier.asset.mapper
+package ru.otus.otuskotlin.financier.asset.api.v1.mapper
 
-import ru.otus.otuskotlin.financier.asset.api.v1.mapper.mapFromAsset
+import ru.otus.otuskotlin.financier.asset.api.v1.exception.AssetCommandUnknownException
 import ru.otus.otuskotlin.financier.asset.api.v1.models.*
 import ru.otus.otuskotlin.financier.asset.common.AssetContext
 import ru.otus.otuskotlin.financier.asset.common.model.AssetCommand
 import ru.otus.otuskotlin.financier.asset.common.model.AssetError
 import ru.otus.otuskotlin.financier.asset.common.model.AssetState
-import ru.otus.otuskotlin.financier.asset.exception.AssetCommandUnknownException
 
 fun AssetContext.toResponse() = when(command) {
     AssetCommand.CREATE -> toAssetCreateResponse()

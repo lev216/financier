@@ -1,13 +1,12 @@
-package ru.otus.otuskotlin.financier.asset.mapper
+package ru.otus.otuskotlin.financier.asset.api.v1.mapper
 
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 import ru.otus.otuskotlin.financier.asset.api.v1.models.*
 import ru.otus.otuskotlin.financier.asset.common.AssetContext
 import ru.otus.otuskotlin.financier.asset.common.model.*
-import ru.otus.otuskotlin.financier.asset.mapper.toResponse
 
-class AssetResponseMapperV1Test {
+class AssetResponseV1MapperTest {
     private val contextCreate = AssetContext(
         command = AssetCommand.CREATE,
         requestId = AssetRequestId("id"),

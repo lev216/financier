@@ -7,8 +7,8 @@ import ru.otus.otuskotlin.financier.asset.api.v1.models.IRequest
 import ru.otus.otuskotlin.financier.asset.api.v1.models.IResponse
 import ru.otus.otuskotlin.financier.asset.app.common.controllerHelper
 import ru.otus.otuskotlin.financier.asset.business.processor.AssetProcessor
-import ru.otus.otuskotlin.financier.asset.factory.AssetContextFactory
-import ru.otus.otuskotlin.financier.asset.mapper.toResponse
+import ru.otus.otuskotlin.financier.asset.api.v1.factory.AssetContextFactory
+import ru.otus.otuskotlin.financier.asset.api.v1.mapper.toResponse
 
 suspend inline fun <reified Q : IRequest, reified R : IResponse> ApplicationCall.processV1(
     assetProcessor: AssetProcessor

@@ -1,5 +1,6 @@
 plugins {
     kotlin("jvm") version "1.9.10"
+    kotlin("plugin.serialization")
     id("application")
     id("io.ktor.plugin")
 }
@@ -33,6 +34,8 @@ jib {
 dependencies {
     implementation("ch.qos.logback:logback-classic:$logbackVersion")
     implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
+    implementation("io.ktor:ktor-network:$ktorVersion")
+    implementation("org.jetbrains.kotlinx:atomicfu:0.23.2")
 
     implementation(kotlin("stdlib-common"))
     implementation(ktorServer("core"))
@@ -42,6 +45,7 @@ dependencies {
     implementation(ktorServer("cors"))
     implementation(ktorServer("config-yaml"))
     implementation(ktorServer("content-negotiation"))
+    implementation(ktorServer("websockets"))
 
     implementation(ktor("serialization-jackson"))
     implementation(ktorServer("call-logging"))
@@ -52,11 +56,13 @@ dependencies {
     implementation(project(":asset-service-common"))
     implementation(project(":asset-service-app-common"))
     implementation(project(":asset-service-business"))
+    implementation(project(":financier-app-kafka"))
 
     testImplementation(kotlin("test-junit"))
     testImplementation("io.mockk:mockk:1.13.8")
     testImplementation("org.assertj:assertj-core:3.25.1")
     testImplementation(ktorServer("test-host"))
     testImplementation(ktorClient("content-negotiation"))
-    testImplementation("org.assertj:assertj-core:3.25.1")
+    testImplementation(ktorClient("websockets"))
+
 }

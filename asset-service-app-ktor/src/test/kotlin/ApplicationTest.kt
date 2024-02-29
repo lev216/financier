@@ -10,7 +10,7 @@ import ru.otus.otuskotlin.financier.asset.business.processor.AssetProcessor
 class ApplicationTest {
 
     @Test
-    fun `create asset`() = testApplication {
+    fun `check health`() = testApplication {
         application { module(AssetProcessor()) }
         val response = client.get("/v1/health")
         assertThat(response).isNotNull

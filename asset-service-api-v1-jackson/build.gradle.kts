@@ -25,7 +25,7 @@ openApiGenerate {
             "dateLibrary" to "string",
             "enumPropertyNaming" to "UPPERCASE",
             "serializationLibrary" to "jackson",
-            "collectionType" to "list"
+            "collectionType" to "list",
         )
     )
 }
@@ -45,4 +45,6 @@ sourceSets {
 dependencies {
     val jacksonVersion: String by project
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
+
+    testImplementation(kotlin("test-junit"))
 }

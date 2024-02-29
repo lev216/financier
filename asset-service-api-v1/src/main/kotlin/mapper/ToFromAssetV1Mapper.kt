@@ -2,16 +2,18 @@ package ru.otus.otuskotlin.financier.asset.api.v1.mapper
 
 import ru.otus.otuskotlin.financier.asset.api.v1.models.*
 import ru.otus.otuskotlin.financier.asset.api.v1.models.AssetType.*
-import ru.otus.otuskotlin.financier.asset.common.model.Asset
-import ru.otus.otuskotlin.financier.asset.common.model.Cash
-import ru.otus.otuskotlin.financier.asset.common.model.Deposit
-import java.time.LocalDateTime
+import ru.otus.otuskotlin.financier.asset.common.model.*
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import java.util.UUID
+
+
+private val dateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
 
 fun mapToAsset(request: IRequest): Asset = when(request) {
     is AssetCreateRequest -> request.mapToAsset()
     is AssetUpdateRequest -> request.mapToAsset()
-    else -> throw IllegalArgumentException("Asset can't be mapped from request: $request")
+    else -> ASSET_NONE
 }
 
 fun mapFromAsset(asset: Asset): AssetResponseObject = when(asset) {
@@ -31,58 +33,62 @@ private fun AssetUpdateRequest.mapToAsset(): Asset = when(asset.type) {
 }
 
 private fun AssetCreateObject.mapToDeposit() = Deposit(
-    UUID.randomUUID().toString(),
+    AssetId(UUID.randomUUID().toString()),
     sum,
     currency,
-    userId,
-    LocalDateTime.parse(depositFields?.startDate),
-    LocalDateTime.parse(depositFields?.endDate),
-    depositFields?.interestRate ?: throw IllegalArgumentException("Deposit fields should be filled")
+    UserId(userId),
+    depositFields?.startDate.toLocalDate(),
+    depositFields?.endDate.toLocalDate(),
+    depositFields?.interestRate ?:
+        throw IllegalArgumentException("Deposit fields should be filled"),
 )
 
 private fun AssetUpdateObject.mapToDeposit() = Deposit(
-    id,
+    AssetId(id),
     sum,
     currency,
-    userId,
-    LocalDateTime.parse(depositFields?.startDate),
-    LocalDateTime.parse(depositFields?.endDate),
-    depositFields?.interestRate ?: throw IllegalArgumentException("Deposit fields should be filled")
+    UserId(userId),
+    depositFields?.startDate.toLocalDate(),
+    depositFields?.endDate.toLocalDate(),
+    depositFields?.interestRate ?:
+        throw IllegalArgumentException("Deposit fields should be filled"),
 )
+
+private fun String?.toLocalDate() = LocalDate.parse(this, dateTimeFormatter)
 
 private fun Deposit.mapToResponse() = AssetResponseObject(
     sum = sum,
     currency = currency,
-    userId = userId,
+    userId = userId.asString(),
     type = DEPOSIT,
     depositFields = mapDepositFields(),
-    id = id,
+    id = id.asString(),
 )
 
 private fun Deposit.mapDepositFields() = DepositFields(
-    startDate.toString(),
-    endDate.toString(),
+    startDate.format(dateTimeFormatter),
+    endDate.format(dateTimeFormatter),
     interestRate,
 )
 
 private fun AssetCreateObject.mapToCash() = Cash(
-    UUID.randomUUID().toString(),
+    AssetId(UUID.randomUUID().toString()),
     sum,
     currency,
-    userId,
+    UserId(userId),
 )
 
 private fun AssetUpdateObject.mapToCash() = Cash(
-    id,
+    AssetId(id),
     sum,
     currency,
-    userId,
+    UserId(userId),
 )
 
 private fun Cash.mapToResponse() = AssetResponseObject(
     sum = sum,
     currency = currency,
-    userId = userId,
+    userId = userId.asString(),
     type = CASH,
-    id = id,
+    id = id.asString(),
 )

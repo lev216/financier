@@ -10,17 +10,21 @@ import ru.otus.otuskotlin.financier.asset.api.v1.FakeAssets.cash
 import ru.otus.otuskotlin.financier.asset.api.v1.FakeAssets.deposit
 import ru.otus.otuskotlin.financier.asset.api.v1.models.*
 import ru.otus.otuskotlin.financier.asset.api.v1.models.AssetType.*
+import ru.otus.otuskotlin.financier.asset.common.model.ASSET_NONE
 import ru.otus.otuskotlin.financier.asset.common.model.Asset
+import ru.otus.otuskotlin.financier.asset.common.model.AssetId
+import ru.otus.otuskotlin.financier.asset.common.model.UserId
 import java.math.BigDecimal
 import java.math.BigDecimal.*
-import java.time.LocalDateTime
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import java.util.UUID
 
 class ToFromAssetV1MapperTest {
-
+    private val dateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
     private val uuid = UUID.fromString("da5db9d8-b13d-4094-959e-2fc57482ae70")
-    private val startDate = LocalDateTime.of(2024, 1, 4, 19, 27)
-    private val endDate = LocalDateTime.of(3034, 10, 24, 9, 7)
+    private val startDate = LocalDate.now().minusMonths(2)
+    private val endDate = startDate.plusYears(10)
     private val createRequestForCash = AssetCreateRequest(
         "create",
         "requestId",
@@ -40,8 +44,8 @@ class ToFromAssetV1MapperTest {
             "userId",
             DEPOSIT,
             DepositFields(
-                startDate.toString(),
-                endDate.toString(),
+                startDate.format(dateTimeFormatter),
+                endDate.format(dateTimeFormatter),
                 TEN,
             ),
         )
@@ -67,8 +71,8 @@ class ToFromAssetV1MapperTest {
             DEPOSIT,
             uuid.toString(),
             DepositFields(
-                startDate.toString(),
-                endDate.toString(),
+                startDate.format(dateTimeFormatter),
+                endDate.format(dateTimeFormatter),
                 TEN,
             ),
         )
@@ -86,8 +90,8 @@ class ToFromAssetV1MapperTest {
         userId = "userId",
         type = DEPOSIT,
         depositFields = DepositFields(
-            startDate.toString(),
-            endDate.toString(),
+            startDate.format(dateTimeFormatter),
+            endDate.format(dateTimeFormatter),
             TEN,
         ),
         id = uuid.toString(),
@@ -162,9 +166,7 @@ class ToFromAssetV1MapperTest {
             )
         )
 
-        assertThatCode { mapToAsset(assetDeleteRequest) }
-            .isInstanceOf(IllegalArgumentException::class.java)
-            .hasMessage("Asset can't be mapped from request: AssetDeleteRequest(requestType=delete, requestId=requestId, asset=AssetDeleteObject(id=id, lock=null), debug=null)")
+        assertThat(mapToAsset(assetDeleteRequest)).isEqualTo(ASSET_NONE)
     }
 
     @Test
@@ -186,10 +188,10 @@ class ToFromAssetV1MapperTest {
     @Test
     fun `mapFromAsset unknown asset`() {
         val asset = object : Asset {
-            override val id: String = "id"
+            override val id: AssetId = AssetId("id")
             override val sum: BigDecimal = ZERO
             override val currency: String = "currency"
-            override val userId: String = "userId"
+            override val userId: UserId = UserId("userId")
             override fun toString() = "Strange asset"
         }
 

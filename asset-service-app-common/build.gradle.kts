@@ -5,7 +5,7 @@ plugins {
 group = rootProject.group
 version = rootProject.version
 
-val datetimeVersion: String by project
 dependencies {
-    api("org.jetbrains.kotlinx:kotlinx-datetime:$datetimeVersion")
+    implementation(project(":asset-service-business"))
+    implementation(project(":asset-service-common"))
 }

@@ -1,11 +1,13 @@
 plugins {
-    kotlin("jvm") version "1.9.10"
+    kotlin("jvm")
 }
 
 group = rootProject.group
 version = rootProject.version
 
 dependencies {
+    val logbackVersion: String by project
+    implementation("ch.qos.logback:logback-classic:$logbackVersion")
     implementation(project(":asset-service-common"))
     implementation(project(":asset-service-api-v1-jackson"))
 

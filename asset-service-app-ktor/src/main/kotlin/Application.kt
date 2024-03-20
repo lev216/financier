@@ -11,14 +11,23 @@ import io.ktor.server.plugins.cors.routing.*
 import io.ktor.server.plugins.defaultheaders.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import io.ktor.server.websocket.*
+import io.ktor.websocket.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.launch
 import org.slf4j.event.Level
 import ru.otus.otuskotlin.financier.asset.business.processor.AssetProcessor
+import ru.otus.otuskotlin.financier.asset.service.CbRfCurrenciesListener
 import ru.otus.otuskotlin.financier.asset.v1.v1Asset
 
 fun main(args: Array<String>): Unit = io.ktor.server.cio.EngineMain.main(args)
 
+private val runtime = Runtime.getRuntime()
+
+@OptIn(ExperimentalCoroutinesApi::class)
 fun Application.module(
-    processor: AssetProcessor = AssetProcessor()
+    processor: AssetProcessor = AssetProcessor(),
 ) {
     install(CachingHeaders)
     install(DefaultHeaders)
@@ -32,6 +41,9 @@ fun Application.module(
         allowCredentials = true
         anyHost() // @TODO: Don't do this in production if possible. Try to limit it.
     }
+    install(WebSockets) {
+
+    }
 
     routing {
         install(ContentNegotiation) {
@@ -42,6 +54,20 @@ fun Application.module(
                 call.respond(HttpStatusCode.OK)
             }
             v1Asset(processor)
+            webSocket("/cbRfCurrencies") {
+                //TODO: return currencies from Redis
+                send(Frame.Text("{\"currencies\":{\"AUD\":59.0059}}"))
+            }
         }
     }
+
+    val cbRfCurrenciesListener = CbRfCurrenciesListener(config = Config)
+
+    launch(Dispatchers.IO.limitedParallelism(1)) {
+        cbRfCurrenciesListener.start()
+    }
+
+    runtime.addShutdownHook(Thread {
+        cbRfCurrenciesListener.stopConsuming()
+    })
 }

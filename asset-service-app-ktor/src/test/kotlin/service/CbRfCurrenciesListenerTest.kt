@@ -1,4 +1,4 @@
-package service
+package ru.otus.otuskotlin.financier.asset.service
 
 import io.mockk.*
 import org.apache.kafka.clients.consumer.ConsumerRecord
@@ -9,7 +9,6 @@ import org.assertj.core.api.AssertionsForClassTypes.assertThat
 import org.junit.Test
 import org.slf4j.Logger
 import ru.otus.otuskotlin.financier.asset.Config
-import ru.otus.otuskotlin.financier.asset.service.CbRfCurrenciesListener
 import ru.otus.otuskotlin.financier.kafka.KafkaConfig
 
 class CbRfCurrenciesListenerTest {
@@ -34,13 +33,14 @@ class CbRfCurrenciesListenerTest {
                     "{\"currencies\":{\"AUD\":59.0059}}",
                 )
             )
-            service.stop()
+            service.stopConsuming()
         }
         val startOffsets = mutableMapOf<TopicPartition, Long>()
         val tp = TopicPartition("topic", 0)
         startOffsets[tp] = 0L
         consumer.updateBeginningOffsets(startOffsets)
         every { logger.info(any()) } returns Unit
+        every { logger.warn(any()) } returns Unit
 
         service.run()
 
@@ -49,5 +49,6 @@ class CbRfCurrenciesListenerTest {
         verify { logger.info(capture(slot)) }
         val actualValue = slot.captured
         assertThat(actualValue).isEqualTo("Record is: {\"currencies\":{\"AUD\":59.0059}}")
+        verify { logger.warn("CbRfCurrenciesListener stops consuming") }
     }
 }

@@ -13,6 +13,9 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.websocket.*
 import io.ktor.websocket.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.launch
 import org.slf4j.event.Level
 import ru.otus.otuskotlin.financier.asset.business.processor.AssetProcessor
 import ru.otus.otuskotlin.financier.asset.service.CbRfCurrenciesListener
@@ -22,6 +25,7 @@ fun main(args: Array<String>): Unit = io.ktor.server.cio.EngineMain.main(args)
 
 private val runtime = Runtime.getRuntime()
 
+@OptIn(ExperimentalCoroutinesApi::class)
 fun Application.module(
     processor: AssetProcessor = AssetProcessor(),
 ) {
@@ -57,11 +61,13 @@ fun Application.module(
         }
     }
 
-    val jobs = Jobs(listOf(
-        CbRfCurrenciesListener(config = Config)
-    ))
-    jobs.start()
+    val cbRfCurrenciesListener = CbRfCurrenciesListener(config = Config)
+
+    launch(Dispatchers.IO.limitedParallelism(1)) {
+        cbRfCurrenciesListener.start()
+    }
+
     runtime.addShutdownHook(Thread {
-        jobs.stop()
+        cbRfCurrenciesListener.stopConsuming()
     })
 }

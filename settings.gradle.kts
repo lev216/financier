@@ -5,7 +5,7 @@ pluginManagement {
     val openApiVersion: String by settings
     val ktorVersion: String by settings
     plugins {
-        kotlin("jvm") version kotlinVersion apply false
+        kotlin("jvm") version kotlinVersion
         kotlin("plugin.serialization") version kotlinVersion apply false
         id("org.openapi.generator") version openApiVersion apply false
         id("io.ktor.plugin") version ktorVersion apply false

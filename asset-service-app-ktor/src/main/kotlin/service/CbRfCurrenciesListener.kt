@@ -19,7 +19,7 @@ class CbRfCurrenciesListener(
     private val config: Config,
     private val consumer: Consumer<String, String> = KafkaClientProvider(config = kafkaConfig).kafkaConsumer(config.getProperty("asset.service.consumer.group")),
     private val logger: Logger = LoggerFactory.getLogger(CbRfCurrenciesListener::class.java)
-) : Runnable {
+) : Thread() {
 
     private val process = atomic(true)
 
@@ -49,7 +49,8 @@ class CbRfCurrenciesListener(
         }
     }
 
-    fun stop() {
+    fun stopConsuming() {
+        logger.warn("CbRfCurrenciesListener stops consuming")
         process.value = false
     }
 }

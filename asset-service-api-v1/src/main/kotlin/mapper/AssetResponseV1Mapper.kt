@@ -48,7 +48,7 @@ private fun AssetContext.toAssetSearchResponse() = AssetSearchResponse(
     requestId = this.requestId.asString(),
     result = if (state == AssetState.RUNNING) ResponseResult.SUCCESS else ResponseResult.ERROR,
     errors = errors.toErrors(),
-    assets = assets.map { mapFromAsset(it) }.toList().takeIf { it.isNotEmpty() }
+    assets = assetsResponse.map { mapFromAsset(it) }.toList().takeIf { it.isNotEmpty() }
 )
 
 private fun List<AssetError>.toErrors(): List<Error>? = this

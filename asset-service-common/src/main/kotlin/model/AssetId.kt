@@ -7,5 +7,6 @@ value class AssetId(private val id: String) {
 
     companion object {
         val NONE = AssetId("")
+        val REGEX = Regex("^[0-9a-zA-Z-]+$")
     }
 }

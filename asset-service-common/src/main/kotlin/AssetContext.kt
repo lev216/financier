@@ -15,7 +15,16 @@ data class AssetContext(
     var timeStart: Instant = Instant.NONE,
     var assetRequest: Asset = ASSET_NONE,
     var assetIdRequest: AssetId = AssetId.NONE,
-    var assetFilter: AssetFilter = AssetFilter(),
+    var assetFilterRequest: AssetFilter = AssetFilter(),
+
+    var assetValidating: Asset = ASSET_NONE,
+    var assetIdValidating: AssetId = AssetId.NONE,
+    var assetFilterValidating: AssetFilter = AssetFilter(),
+
+    var assetValidated: Asset = ASSET_NONE,
+    var assetIdValidated: AssetId = AssetId.NONE,
+    var assetFilterValidated: AssetFilter = AssetFilter(),
+
     var assetResponse: Asset = ASSET_NONE,
-    val assets: MutableList<Asset> = mutableListOf(),
+    val assetsResponse: MutableList<Asset> = mutableListOf(),
 )

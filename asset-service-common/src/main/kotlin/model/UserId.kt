@@ -7,5 +7,6 @@ value class UserId(private val id: String) {
 
     companion object {
         val NONE = UserId("")
+        val REGEX = Regex("^[0-9a-zA-Z-]+$")
     }
 }

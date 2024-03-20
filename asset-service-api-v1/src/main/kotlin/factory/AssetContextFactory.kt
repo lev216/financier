@@ -24,7 +24,7 @@ object AssetContextFactory {
         timeStart = Clock.System.now(),
         assetRequest = mapToAsset(request),
         assetIdRequest = request.toAssetId(),
-        assetFilter = request.toAssetSearchFilter()
+        assetFilterRequest = request.toAssetSearchFilter()
     ).also {
         logger.info("Create context for request: $request")
     }

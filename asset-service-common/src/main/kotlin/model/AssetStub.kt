@@ -8,4 +8,5 @@ enum class AssetStub {
     NEGATIVE_SUM,
     BAD_TYPE,
     CANNOT_DELETE,
+    DB_ERROR,
 }

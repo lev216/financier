@@ -188,7 +188,7 @@ class ToFromAssetV1MapperTest {
     @Test
     fun `mapFromAsset unknown asset`() {
         val asset = object : Asset {
-            override val id: AssetId = AssetId("id")
+            override var id: AssetId = AssetId("id")
             override val sum: BigDecimal = ZERO
             override val currency: String = "currency"
             override val userId: UserId = UserId("userId")

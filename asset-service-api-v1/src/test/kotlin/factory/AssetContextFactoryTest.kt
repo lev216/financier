@@ -2,7 +2,6 @@ package ru.otus.otuskotlin.financier.asset.api.v1.factory
 
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
-import ru.otus.otuskotlin.financier.asset.api.v1.factory.AssetContextFactory
 import ru.otus.otuskotlin.financier.asset.api.v1.models.*
 import ru.otus.otuskotlin.financier.asset.common.model.*
 import java.math.BigDecimal
@@ -106,7 +105,7 @@ class AssetContextFactoryTest {
         assertThat(context.timeStart).isNotNull
         assertThat(context.assetRequest).isNotNull
         assertThat(context.assetIdRequest).isEqualTo(AssetId.NONE)
-        assertThat(context.assetFilter).isEqualTo(AssetFilter())
+        assertThat(context.assetFilterRequest).isEqualTo(AssetFilter())
     }
 
     @Test
@@ -120,7 +119,7 @@ class AssetContextFactoryTest {
         assertThat(context.timeStart).isNotNull
         assertThat(context.assetRequest).isNotNull
         assertThat(context.assetIdRequest).isEqualTo(AssetId.NONE)
-        assertThat(context.assetFilter).isEqualTo(AssetFilter())
+        assertThat(context.assetFilterRequest).isEqualTo(AssetFilter())
     }
 
     @Test
@@ -134,7 +133,7 @@ class AssetContextFactoryTest {
         assertThat(context.timeStart).isNotNull
         assertThat(context.assetRequest).isNotNull
         assertThat(context.assetIdRequest).isEqualTo(AssetId(uuid.toString()))
-        assertThat(context.assetFilter).isEqualTo(AssetFilter())
+        assertThat(context.assetFilterRequest).isEqualTo(AssetFilter())
     }
 
     @Test
@@ -148,7 +147,7 @@ class AssetContextFactoryTest {
         assertThat(context.timeStart).isNotNull
         assertThat(context.assetRequest).isNotNull
         assertThat(context.assetIdRequest).isEqualTo(AssetId(uuid.toString()))
-        assertThat(context.assetFilter).isEqualTo(AssetFilter())
+        assertThat(context.assetFilterRequest).isEqualTo(AssetFilter())
     }
 
     @Test
@@ -162,7 +161,7 @@ class AssetContextFactoryTest {
         assertThat(context.timeStart).isNotNull
         assertThat(context.assetRequest).isNotNull
         assertThat(context.assetIdRequest).isEqualTo(AssetId.NONE)
-        assertThat(context.assetFilter).isEqualTo(AssetFilter(
+        assertThat(context.assetFilterRequest).isEqualTo(AssetFilter(
             AssetId((uuid.toString())),
             startDate,
             endDate,

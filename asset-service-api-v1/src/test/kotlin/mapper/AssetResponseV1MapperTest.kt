@@ -38,7 +38,7 @@ class AssetResponseV1MapperTest {
         command = AssetCommand.SEARCH,
         requestId = AssetRequestId("id"),
         state = AssetState.RUNNING,
-        assets = mutableListOf(Cash()),
+        assetsResponse = mutableListOf(Cash()),
     )
 
     @Test

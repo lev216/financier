@@ -141,5 +141,16 @@ services:
       CONFLUENT_METRICS_TOPIC_REPLICATION: 1
       PORT: 9021
 
+  mongo:
+    image: mongo:5
+    ports:
+      - '27017:27017'
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: mongo
+      MONGO_INITDB_ROOT_PASSWORD: mongo
+    volumes:
+      - 'mongo:/data/db'
+
 volumes:
   opensearch-data:
+  mongo:

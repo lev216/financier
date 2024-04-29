@@ -58,6 +58,10 @@ dependencies {
     implementation(project(":asset-service-business"))
     implementation(project(":financier-app-kafka"))
 
+    implementation(project(":asset-service-persistence-in-memory"))
+    implementation(project(":asset-service-persistence-mongo"))
+    implementation(project(":asset-service-persistence-stubs"))
+
     testImplementation(kotlin("test-junit"))
     testImplementation("io.mockk:mockk:1.13.8")
     testImplementation("org.assertj:assertj-core:3.25.1")

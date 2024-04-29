@@ -11,20 +11,20 @@ import java.time.LocalDate
 object FakeAssets {
     val cash
         get() = Cash(
-            AssetId("da5db9d8-b13d-4094-959e-2fc57482ae70"),
-            ONE,
-            "USD",
-            UserId("userId"),
+            id = AssetId("da5db9d8-b13d-4094-959e-2fc57482ae70"),
+            sum = ONE,
+            currency = "USD",
+            userId = UserId("userId"),
         )
 
     val deposit
         get() = Deposit(
-            AssetId("da5db9d8-b13d-4094-959e-2fc57482ae70"),
-            ONE,
-            "USD",
-            UserId("userId"),
-            LocalDate.now().minusMonths(2),
-            LocalDate.now().minusMonths(2).plusYears(10),
-            TEN,
+            id = AssetId("da5db9d8-b13d-4094-959e-2fc57482ae70"),
+            sum = ONE,
+            currency = "USD",
+            userId = UserId("userId"),
+            startDate = LocalDate.now().minusMonths(2),
+            endDate = LocalDate.now().minusMonths(2).plusYears(10),
+            interestRate = TEN,
         )
 }

@@ -10,10 +10,7 @@ import ru.otus.otuskotlin.financier.asset.api.v1.FakeAssets.cash
 import ru.otus.otuskotlin.financier.asset.api.v1.FakeAssets.deposit
 import ru.otus.otuskotlin.financier.asset.api.v1.models.*
 import ru.otus.otuskotlin.financier.asset.api.v1.models.AssetType.*
-import ru.otus.otuskotlin.financier.asset.common.model.ASSET_NONE
-import ru.otus.otuskotlin.financier.asset.common.model.Asset
-import ru.otus.otuskotlin.financier.asset.common.model.AssetId
-import ru.otus.otuskotlin.financier.asset.common.model.UserId
+import ru.otus.otuskotlin.financier.asset.common.model.*
 import java.math.BigDecimal
 import java.math.BigDecimal.*
 import java.time.LocalDate
@@ -26,55 +23,57 @@ class ToFromAssetV1MapperTest {
     private val startDate = LocalDate.now().minusMonths(2)
     private val endDate = startDate.plusYears(10)
     private val createRequestForCash = AssetCreateRequest(
-        "create",
-        "requestId",
-        AssetCreateObject(
-            ONE,
-            "USD",
-            "userId",
-            CASH,
+        requestType = "create",
+        requestId = "requestId",
+        asset = AssetCreateObject(
+            sum = ONE,
+            currency = "USD",
+            userId = "userId",
+            type = CASH,
         )
     )
     private val createRequestForDeposit = AssetCreateRequest(
-        "create",
-        "requestId",
-        AssetCreateObject(
-            ONE,
-            "USD",
-            "userId",
-            DEPOSIT,
-            DepositFields(
-                startDate.format(dateTimeFormatter),
-                endDate.format(dateTimeFormatter),
-                TEN,
+        requestType = "create",
+        requestId = "requestId",
+        asset = AssetCreateObject(
+            sum = ONE,
+            currency = "USD",
+            userId = "userId",
+            type = DEPOSIT,
+            depositFields = DepositFields(
+                startDate = startDate.format(dateTimeFormatter),
+                endDate = endDate.format(dateTimeFormatter),
+                interestRate = TEN,
             ),
         )
     )
     private val updateRequestForCash = AssetUpdateRequest(
-        "create",
-        "requestId",
-        AssetUpdateObject(
-            ONE,
-            "USD",
-            "userId",
-            CASH,
-            uuid.toString(),
+        requestType = "create",
+        requestId = "requestId",
+        asset = AssetUpdateObject(
+            sum = ONE,
+            currency = "USD",
+            userId = "userId",
+            type = CASH,
+            id = uuid.toString(),
+            lock = "lock",
         )
     )
     private val updateRequestForDeposit = AssetUpdateRequest(
-        "create",
-        "requestId",
-        AssetUpdateObject(
-            ONE,
-            "USD",
-            "userId",
-            DEPOSIT,
-            uuid.toString(),
-            DepositFields(
-                startDate.format(dateTimeFormatter),
-                endDate.format(dateTimeFormatter),
-                TEN,
+        requestType = "create",
+        requestId = "requestId",
+        asset = AssetUpdateObject(
+            sum = ONE,
+            currency = "USD",
+            userId = "userId",
+            type = DEPOSIT,
+            id = uuid.toString(),
+            depositFields = DepositFields(
+                startDate = startDate.format(dateTimeFormatter),
+                endDate = endDate.format(dateTimeFormatter),
+                interestRate = TEN,
             ),
+            lock = "lock",
         )
     )
     private val assetResponseCash = AssetResponseObject(
@@ -123,7 +122,7 @@ class ToFromAssetV1MapperTest {
 
     @Test
     fun `mapToAsset with request to update asset with type CASH`() {
-        val expected = cash
+        val expected = cash.also { it.lock = AssetLock("lock") }
 
         val actual = mapToAsset(updateRequestForCash)
         assertThat(actual).isEqualTo(expected)
@@ -131,7 +130,7 @@ class ToFromAssetV1MapperTest {
 
     @Test
     fun `mapToAsset with request to update asset with type DEPOSIT`() {
-        val expected = deposit
+        val expected = deposit.also { it.lock = AssetLock("lock") }
 
         val actual = mapToAsset(updateRequestForDeposit)
         assertThat(actual).isEqualTo(expected)
@@ -140,14 +139,14 @@ class ToFromAssetV1MapperTest {
     @Test
     fun `mapToAsset without deposit data`() {
         val requestWithoutDepositData = AssetCreateRequest(
-            "create",
-            "requestId",
-            AssetCreateObject(
-                ONE,
-                "USD",
-                "userId",
-                DEPOSIT,
-                null,
+            requestType = "create",
+            requestId = "requestId",
+            asset = AssetCreateObject(
+                sum = ONE,
+                currency = "USD",
+                userId = "userId",
+                type = DEPOSIT,
+                depositFields = null,
             )
         )
 
@@ -159,11 +158,9 @@ class ToFromAssetV1MapperTest {
     @Test
     fun `mapToAsset when asset can't be mapped`() {
         val assetDeleteRequest = AssetDeleteRequest(
-            "delete",
-            "requestId",
-            AssetDeleteObject(
-                "id"
-            )
+            requestType = "delete",
+            requestId = "requestId",
+            asset = AssetDeleteObject("id")
         )
 
         assertThat(mapToAsset(assetDeleteRequest)).isEqualTo(ASSET_NONE)
@@ -189,9 +186,10 @@ class ToFromAssetV1MapperTest {
     fun `mapFromAsset unknown asset`() {
         val asset = object : Asset {
             override var id: AssetId = AssetId("id")
-            override val sum: BigDecimal = ZERO
-            override val currency: String = "currency"
-            override val userId: UserId = UserId("userId")
+            override var sum: BigDecimal = ZERO
+            override var currency: String = "currency"
+            override var userId: UserId = UserId("userId")
+            override var lock: AssetLock = AssetLock("lock")
             override fun toString() = "Strange asset"
         }
 

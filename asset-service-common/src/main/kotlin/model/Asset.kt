@@ -6,26 +6,29 @@ import java.time.LocalDate
 
 interface Asset {
     var id: AssetId
-    val sum: BigDecimal
-    val currency: String
-    val userId: UserId
+    var sum: BigDecimal
+    var currency: String
+    var userId: UserId
+    var lock: AssetLock
 }
 
 data class Cash(
     override var id: AssetId = AssetId.NONE,
-    override val sum: BigDecimal = ZERO,
-    override val currency: String = "RUB",
-    override val userId: UserId = UserId.NONE,
+    override var sum: BigDecimal = ZERO,
+    override var currency: String = "RUB",
+    override var userId: UserId = UserId.NONE,
+    override var lock: AssetLock = AssetLock.NONE
 ) : Asset
 
 data class Deposit(
     override var id: AssetId = AssetId.NONE,
-    override val sum: BigDecimal = ZERO,
-    override val currency: String = "RUB",
-    override val userId: UserId = UserId.NONE,
-    val startDate: LocalDate,
-    val endDate: LocalDate,
-    val interestRate: BigDecimal,
+    override var sum: BigDecimal = ZERO,
+    override var currency: String = "RUB",
+    override var userId: UserId = UserId.NONE,
+    override var lock: AssetLock = AssetLock.NONE,
+    var startDate: LocalDate,
+    var endDate: LocalDate,
+    var interestRate: BigDecimal,
 ) : Asset
 
 val ASSET_NONE: Asset = Cash()

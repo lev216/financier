@@ -2,40 +2,76 @@ package ru.otus.otuskotlin.financier.asset.business.validation
 
 import org.junit.Test
 import ru.otus.otuskotlin.financier.asset.business.processor.AssetProcessor
+import ru.otus.otuskotlin.financier.asset.common.AssetCorSettings
 import ru.otus.otuskotlin.financier.asset.common.model.AssetCommand
+import ru.otus.otuskotlin.financier.asset.persistence.inmemory.stubs.AssetRepositoryStub
 
 class BusinessValidationCreateTest {
 
     private val command = AssetCommand.CREATE
-    private val processor by lazy { AssetProcessor() }
+    private val repository = AssetRepositoryStub()
+    private val settings by lazy {
+        AssetCorSettings(repositoryTest = repository)
+    }
+    private val processor by lazy { AssetProcessor(settings) }
 
     @Test
-    fun correctCurrency() = validationCurrencyCorrect(command, processor)
+    fun correctCurrency() {
+        repository.assetTypeForTest = AssetRepositoryStub.AsserType.CASH
+        validationCurrencyCorrect(command, processor)
+    }
 
     @Test
-    fun currencyIsEmpty() = validationCurrencyIsEmpty(command, processor)
+    fun currencyIsEmpty() {
+        repository.assetTypeForTest = AssetRepositoryStub.AsserType.CASH
+        validationCurrencyIsEmpty(command, processor)
+    }
 
     @Test
-    fun correctDepositDates() = validationDepositDatesCorrect(command, processor)
+    fun correctDepositDates() {
+        repository.assetTypeForTest = AssetRepositoryStub.AsserType.DEPOSIT
+        validationDepositDatesCorrect(command, processor)
+    }
 
     @Test
-    fun depositStartDateInFuture() = validationDepositStartDateInFuture(command, processor)
+    fun depositStartDateInFuture() {
+        repository.assetTypeForTest = AssetRepositoryStub.AsserType.DEPOSIT
+        validationDepositStartDateInFuture(command, processor)
+    }
 
     @Test
-    fun depositStartDateIsAfterEndDate() = validationDepositStartDateIsAfterEndDate(command, processor)
+    fun depositStartDateIsAfterEndDate() {
+        repository.assetTypeForTest = AssetRepositoryStub.AsserType.DEPOSIT
+        validationDepositStartDateIsAfterEndDate(command, processor)
+    }
 
     @Test
-    fun depositEndDatePassed() = validationDepositEndDatePassed(command, processor)
+    fun depositEndDatePassed() {
+        repository.assetTypeForTest = AssetRepositoryStub.AsserType.DEPOSIT
+        validationDepositEndDatePassed(command, processor)
+    }
 
     @Test
-    fun correctInterestRate() = validationInterestRateCorrect(command, processor)
+    fun correctInterestRate() {
+        repository.assetTypeForTest = AssetRepositoryStub.AsserType.DEPOSIT
+        validationInterestRateCorrect(command, processor)
+    }
 
     @Test
-    fun interestRateNegative() = validationInterestRateNegative(command, processor)
+    fun interestRateNegative() {
+        repository.assetTypeForTest = AssetRepositoryStub.AsserType.DEPOSIT
+        validationInterestRateNegative(command, processor)
+    }
 
     @Test
-    fun correctSum() = validationSumCorrect(command, processor)
+    fun correctSum() {
+        repository.assetTypeForTest = AssetRepositoryStub.AsserType.CASH
+        validationSumCorrect(command, processor)
+    }
 
     @Test
-    fun sumNegative() = validationSumNegative(command, processor)
+    fun sumNegative() {
+        repository.assetTypeForTest = AssetRepositoryStub.AsserType.CASH
+        validationSumNegative(command, processor)
+    }
 }

@@ -27,7 +27,7 @@ private val runtime = Runtime.getRuntime()
 
 @OptIn(ExperimentalCoroutinesApi::class)
 fun Application.module(
-    processor: AssetProcessor = AssetProcessor(),
+    appSettings: AssetAppSettings = Config.initAppSettings()
 ) {
     install(CachingHeaders)
     install(DefaultHeaders)
@@ -53,7 +53,7 @@ fun Application.module(
             get("/health") {
                 call.respond(HttpStatusCode.OK)
             }
-            v1Asset(processor)
+            v1Asset(appSettings.processor)
             webSocket("/cbRfCurrencies") {
                 //TODO: return currencies from Redis
                 send(Frame.Text("{\"currencies\":{\"AUD\":59.0059}}"))

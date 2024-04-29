@@ -14,4 +14,6 @@ dependencies {
     testImplementation(kotlin("test-junit"))
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:$coroutinesVersion")
     testImplementation("org.assertj:assertj-core:3.25.1")
+    testImplementation(project(":asset-service-persistence-tests"))
+    testImplementation(project(":asset-service-persistence-stubs"))
 }

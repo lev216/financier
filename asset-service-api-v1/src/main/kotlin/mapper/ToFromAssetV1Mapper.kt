@@ -33,25 +33,26 @@ private fun AssetUpdateRequest.mapToAsset(): Asset = when(asset.type) {
 }
 
 private fun AssetCreateObject.mapToDeposit() = Deposit(
-    AssetId(UUID.randomUUID().toString()),
-    sum,
-    currency,
-    UserId(userId),
-    depositFields?.startDate.toLocalDate(),
-    depositFields?.endDate.toLocalDate(),
-    depositFields?.interestRate ?:
+    id = AssetId(UUID.randomUUID().toString()),
+    sum = sum,
+    currency = currency,
+    userId = UserId(userId),
+    startDate = depositFields?.startDate.toLocalDate(),
+    endDate = depositFields?.endDate.toLocalDate(),
+    interestRate = depositFields?.interestRate ?:
         throw IllegalArgumentException("Deposit fields should be filled"),
 )
 
 private fun AssetUpdateObject.mapToDeposit() = Deposit(
-    AssetId(id),
-    sum,
-    currency,
-    UserId(userId),
-    depositFields?.startDate.toLocalDate(),
-    depositFields?.endDate.toLocalDate(),
-    depositFields?.interestRate ?:
+    id = AssetId(id),
+    sum = sum,
+    currency = currency,
+    userId = UserId(userId),
+    startDate = depositFields?.startDate.toLocalDate(),
+    endDate = depositFields?.endDate.toLocalDate(),
+    interestRate = depositFields?.interestRate ?:
         throw IllegalArgumentException("Deposit fields should be filled"),
+    lock = lock?.let { AssetLock(it) } ?: AssetLock.NONE,
 )
 
 private fun String?.toLocalDate() = LocalDate.parse(this, dateTimeFormatter)
@@ -66,23 +67,24 @@ private fun Deposit.mapToResponse() = AssetResponseObject(
 )
 
 private fun Deposit.mapDepositFields() = DepositFields(
-    startDate.format(dateTimeFormatter),
-    endDate.format(dateTimeFormatter),
-    interestRate,
+    startDate = startDate.format(dateTimeFormatter),
+    endDate = endDate.format(dateTimeFormatter),
+    interestRate = interestRate,
 )
 
 private fun AssetCreateObject.mapToCash() = Cash(
-    AssetId(UUID.randomUUID().toString()),
-    sum,
-    currency,
-    UserId(userId),
+    id = AssetId(UUID.randomUUID().toString()),
+    sum = sum,
+    currency = currency,
+    userId = UserId(userId),
 )
 
 private fun AssetUpdateObject.mapToCash() = Cash(
-    AssetId(id),
-    sum,
-    currency,
-    UserId(userId),
+    id = AssetId(id),
+    sum = sum,
+    currency = currency,
+    userId = UserId(userId),
+    lock = lock?.let { AssetLock(it) } ?: AssetLock.NONE,
 )
 
 private fun Cash.mapToResponse() = AssetResponseObject(
